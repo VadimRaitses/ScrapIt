@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "puppeteer": "^5.5.0"
+  },
+  "scripts": {
+    "debug":"node index.js https://www.ebay.com/deals/"
+  }
+}
