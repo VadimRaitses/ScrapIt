@@ -10,6 +10,6 @@ run:
         node index.js  https://ebay.com/deals
 
 
-disclaimer:
->My main stack is not a js, so it might be rude and not appropriate for some js devs.
->enjoy..
+Ebay implemented new feature for blocking constant crowling, it appears for couple of secomds as window and affect some prodcut data.
+so all sleep behaviour has to be randomized first, second it has to run slowly, also this window can be easily caught, and pause process till it will dissaper.
+otherwise couple of categories will be empty.
