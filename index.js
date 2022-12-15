@@ -119,7 +119,6 @@ async function run() {
               if (!obj.image.startsWith("https://ir.ebaystatic.com"))
                 map.push(obj);
             }
-
           } catch (err) {
             console.log(err);
           }
