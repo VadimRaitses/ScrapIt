@@ -7,7 +7,7 @@ requirment node.js
 run: 
 
         npm istall
-        node index.js  https://ebay.com/deal/
+        node index.js  https://ebay.com/deals
 
 
 disclaimer:

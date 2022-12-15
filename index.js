@@ -1,10 +1,24 @@
-const puppeteer = require('puppeteer');
+import puppeteer from 'puppeteer';
+import * as fs from 'fs';
+
+
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 
 const url = process.argv[2];
 if (!url) {
-  throw "Please provide a URL as the first argument";
+  throw "Please provide a URL ebay deals url";
 }
+
+let data_folder = ''
+let set_log_folder = (category) => {
+  data_folder = `data/${category}`;
+  fs.mkdirSync(data_folder, { recursive: true });
+}
+
+let write_data_file = (data) => {
+  fs.writeFileSync(`${data_folder}.json`, JSON.stringify(data), { encoding: "utf8" });
+}
+
 
 async function run() {
   const browser = await puppeteer.launch({
@@ -23,7 +37,7 @@ async function run() {
   await page.addScriptTag({ url: 'https://code.jquery.com/jquery-3.2.1.min.js' })
 
   const arrayOfLinks = await page.evaluate(() => {
-    const $ = window.$; 
+    const $ = window.$;
     var arr = []
     $('nav ul li').each((k, v) => {
       var cur = {};
@@ -43,9 +57,11 @@ async function run() {
   });
 
   for (const father of arrayOfLinks) {
+    console.log(father)
     for (const child of father.children) {
       console.log(child);
       await page.goto(child.address);
+      // nothing is better than jquey injection.
       await page.addScriptTag({ url: 'https://code.jquery.com/jquery-3.2.1.min.js' });
 
       for (const i of [1, 2, 3, 4, 5, 6, 7]) {
@@ -54,21 +70,21 @@ async function run() {
         await page.evaluate(() => {
           $('html, body').animate({ scrollTop: $(document).height() - $(window).height() });
         })
-        await sleep(500);
+        await sleep(600);
         await page.evaluate(() => {
           $('.load-more-btn').click();
         });
       }
       console.log('getching products')
-      const products =  await page.evaluate(() => {
-       let categories = ["deals_of_the_week", "hot_new_arrivals", "hot_best_seller", "trends"];
-       let map = [];
+      const products = await page.evaluate(() => {
+        let categories = ["deals_of_the_week", "hot_new_arrivals", "hot_best_seller", "trends"];
+        let map = [];
         $(".col").each(function (index, item) {
           try {
-            console.log(index,item);
+            console.log(index, item);
             let obj = {};
             let data_array = item.innerText.split(/\n/);
-            console.log(item.innerText,data_array)
+            console.log(item.innerText, data_array)
             if (data_array.length > 1) {
               obj.data_array = data_array;
 
@@ -109,8 +125,9 @@ async function run() {
           }
         });
         console.log(map);
-        return  map;
+        return map;
       });
+      write_data_file(products)
       console.log(products);
       await sleep(1000);
     }
@@ -119,5 +136,6 @@ async function run() {
   await page.screenshot({ path: 'screenshot.png' });
   browser.close();
 }
+
 
 run();

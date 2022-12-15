@@ -1,8 +1,11 @@
 {
+  "main": "index.js",
   "dependencies": {
+    "@types/puppeteer": "^7.0.4",
     "puppeteer": "^5.5.0"
   },
   "scripts": {
-    "debug":"node index.js https://www.ebay.com/deals/"
-  }
+    "debug": "node index.js https://www.ebay.com/deals/"
+  },
+  "type": "module"
 }
