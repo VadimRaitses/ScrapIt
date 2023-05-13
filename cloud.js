@@ -1,6 +1,13 @@
 import puppeteer from 'puppeteer';
 import * as fs from 'fs';
+import AWS from 'aws-sdk'
 
+
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+});
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 
@@ -18,6 +25,17 @@ let set_log_folder = (category) => {
 let write_data_file = (data) => {
   console.log(`${data_folder}`)
   fs.writeFileSync(`${data_folder}.json`, JSON.stringify(data), { encoding: "utf8" });
+}
+
+let uploadFiletoS3 =  (file,data_folder) =>{
+  console.log('s3 upload file',`${data_folder.replace(/\s+/g, "_")}.json`);
+  return s3.upload({
+  Bucket: process.env.AWS_S3_BUCKET_NAME,
+  Key: `${data_folder.replace(/\s+/g, "_")}.json`,
+  Body: Buffer.from(JSON.stringify(file)),
+  ContentEncoding: 'base64',
+  ContentType: 'application/json',
+}).promise()
 }
 
 
@@ -97,8 +115,6 @@ async function run() {
               obj.price_signed = data_array[1];
               obj.price = Number(data_array[1].replace("$", "").trim().replace(",", ""));
 
-          
-     
               obj.vendor = "ebay";
               obj.weight = 1;
               if (!obj.image_url.startsWith("https://ir.ebaystatic.com"))
@@ -110,7 +126,7 @@ async function run() {
         });
         return map;
       });
-      write_data_file(products)
+      await uploadFiletoS3(products,data_folder)
       //console.log(products);
       await sleep(1000);
     }
